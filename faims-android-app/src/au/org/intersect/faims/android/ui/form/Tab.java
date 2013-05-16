@@ -9,7 +9,6 @@ import java.util.Map;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.SelectChoice;
 
-import android.app.ActionBar.LayoutParams;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,6 +30,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -113,9 +113,24 @@ public class Tab implements Parcelable{
 		}
 	};
 
-	public View addInput(FormAttribute attribute, String ref, String viewName, String directory, boolean isArchEnt, boolean isRelationship) {
+	public LinearLayout addChildContainer(LinearLayout containerLayout,
+			List<Map<String, String>> styleMappings) {
+		CustomLinearLayout linearLayout = new CustomLinearLayout(this.context, styleMappings);
+		if(containerLayout == null){
+			this.linearLayout.addView(linearLayout);
+		}else{
+			containerLayout.addView(linearLayout);
+		}
+		
+		return linearLayout;
+	}
+
+	  public View addInput(LinearLayout linearLayout, FormAttribute attribute, String ref, String viewName, String directory, boolean isArchEnt, boolean isRelationship, List<Map<String, String>> styleMappings) {
     	Button certaintyButton = null;
     	Button annotationButton = null;
+    	if(linearLayout == null){
+    		linearLayout = this.linearLayout;
+    	}
     	
 		if (attribute.controlType != Constants.CONTROL_TRIGGER) {
 			LinearLayout fieldLinearLayout = new LinearLayout(this.context);
@@ -145,30 +160,30 @@ public class Tab implements Parcelable{
             	switch (attribute.dataType) {
 	                case Constants.DATATYPE_INTEGER:
 	                	view = createIntegerTextField(attribute, ref);
-	                	setupView(view, certaintyButton, annotationButton, ref);
+	                	setupView(linearLayout, view, certaintyButton, annotationButton, ref);
 	                    break;
 	                case Constants.DATATYPE_DECIMAL:
 	                	view = createDecimalTextField(attribute, ref);
-	                	setupView(view, certaintyButton, annotationButton, ref);
+	                	setupView(linearLayout, view, certaintyButton, annotationButton, ref);
 	                    break;
 	                case Constants.DATATYPE_LONG:
 	                	view = createLongTextField(attribute, ref);
-	                	setupView(view, certaintyButton, annotationButton, ref);
+	                	setupView(linearLayout, view, certaintyButton, annotationButton, ref);
 	                    break;
 	                // set input type as date picker
 	                case Constants.DATATYPE_DATE:
 	                	view = createDatePicker(attribute, ref);
-	                	setupView(view, certaintyButton, annotationButton, ref, DateUtil.getDate((CustomDatePicker) view));
+	                	setupView(linearLayout, view, certaintyButton, annotationButton, ref, DateUtil.getDate((CustomDatePicker) view));
 	                    break;
 	                // get the text area
 	                case Constants.DATATYPE_TEXT:
 	                	view = createTextArea(attribute, ref);
-	                	setupView(view, certaintyButton, annotationButton, ref);
+	                	setupView(linearLayout, view, certaintyButton, annotationButton, ref);
 	                    break;
 	                // set input type as time picker
 	                case Constants.DATATYPE_TIME:
 	                	view = createTimePicker(attribute, ref);
-	    				setupView(view, certaintyButton, annotationButton, ref, DateUtil.getTime((CustomTimePicker) view));
+	    				setupView(linearLayout, view, certaintyButton, annotationButton, ref, DateUtil.getTime((CustomTimePicker) view));
 	                    break;
 	                // default is edit text
 	                default:
@@ -216,7 +231,7 @@ public class Tab implements Parcelable{
 	                		view = mapView;
 	                	} else {
 	                		view = createTextField(-1, attribute, ref);
-	                		setupView(view, certaintyButton, annotationButton, ref);
+	                		setupView(linearLayout, view, certaintyButton, annotationButton, ref);
 	                	}
 	                    break;
             	}
@@ -252,12 +267,12 @@ public class Tab implements Parcelable{
                     	// check if the type if image to create image slider
                         if ("image".equalsIgnoreCase(attribute.questionType)) {
                             view = renderImageSliderForSingleSelection(attribute, directory, ref);
-                            setupView(view, certaintyButton, annotationButton, ref);
+                            setupView(linearLayout, view, certaintyButton, annotationButton, ref);
                         }
                         // Radio Button
                         else if ("full".equalsIgnoreCase(attribute.questionAppearance)) {
                         	view = createRadioGroup(attribute, ref);
-                        	setupView(view, certaintyButton, annotationButton, ref);
+                        	setupView(linearLayout, view, certaintyButton, annotationButton, ref);
                         // List
                         } else if ("compact".equalsIgnoreCase(attribute.questionAppearance) ) {
                         	view = createList(attribute);
@@ -266,7 +281,7 @@ public class Tab implements Parcelable{
                         } else {
                         	view = createDropDown(attribute, ref);
                         	NameValuePair pair = (NameValuePair) ((CustomSpinner) view).getSelectedItem();
-                        	setupView(view, certaintyButton, annotationButton, ref, pair.getValue());
+                        	setupView(linearLayout, view, certaintyButton, annotationButton, ref, pair.getValue());
                         }
                         break;
                 }
@@ -276,12 +291,12 @@ public class Tab implements Parcelable{
                 switch (attribute.dataType) {
                     case Constants.DATATYPE_CHOICE_LIST:
                     	view = createCheckListGroup(attribute, ref);
-                    	setupView(view, certaintyButton, annotationButton, ref, new ArrayList<NameValuePair>());
+                    	setupView(linearLayout, view, certaintyButton, annotationButton, ref, new ArrayList<NameValuePair>());
                 }
                 break;
             // create control for trigger showing as a button
             case Constants.CONTROL_TRIGGER:
-                view = createTrigger(attribute);
+                view = createTrigger(attribute,styleMappings);
                 linearLayout.addView(view);
                 break;
         }
@@ -325,11 +340,11 @@ public class Tab implements Parcelable{
 		return button;
 	}
 	
-	private void setupView(View view, Button certaintyButton, Button annotationButton, String ref) {
-		setupView(view, certaintyButton, annotationButton, ref, "");
+	private void setupView(LinearLayout linearLayout,View view, Button certaintyButton, Button annotationButton, String ref) {
+		setupView(linearLayout,view, certaintyButton, annotationButton, ref, "");
 	}
 	
-	private void setupView(View view, Button certaintyButton, Button annotationButton, String ref, Object value) {
+	private void setupView(LinearLayout linearLayout,View view, Button certaintyButton, Button annotationButton, String ref, Object value) {
 		if (certaintyButton != null) onCertaintyButtonClicked(certaintyButton, view);
         if (annotationButton != null) onAnnotationButtonClicked(annotationButton, view);
         linearLayout.addView(view);
@@ -462,8 +477,8 @@ public class Tab implements Parcelable{
         return selectLayout;
 	}
 	
-	private Button createTrigger(FormAttribute attribute) {
-		 Button button = new Button(this.context);
+	private Button createTrigger(FormAttribute attribute, List<Map<String, String>> styleMappings) {
+		 CustomButton button = new CustomButton(this.context, styleMappings);
          String questionText = arch16n.substituteValue(attribute.questionText);
          button.setText(questionText);
          return button;

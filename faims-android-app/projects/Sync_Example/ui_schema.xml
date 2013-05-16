@@ -9,6 +9,14 @@
     <model>
       <instance>
         <faims id="simple_example">
+          <style>
+            <orientation>
+                <orientation></orientation>
+            </orientation>
+            <even>
+                <layout_weight></layout_weight>
+            </even>
+          </style>
           <user>
               <tab1>
                   <users></users>
@@ -29,9 +37,11 @@
                   <file></file>
                   <sync></sync>
                   <attach></attach>
-                  <save></save>
-                  <update></update>
-                  <clear></clear>
+                  <container>
+                    <save></save>
+                    <update></update>
+                    <clear></clear>
+                  </container>
               </tab1>
               <tab2>
                   <entities></entities>
@@ -42,9 +52,11 @@
               <tab1>
                   <name></name>
                   <location></location>
-                  <save></save>
-                  <update></update>
-                  <clear></clear>
+                  <container>
+                    <save></save>
+                    <update></update>
+                    <clear></clear>
+                  </container>
               </tab1>
               <tab2>
                   <relationships></relationships>
@@ -69,6 +81,21 @@
 
   
   <h:body>
+    <group ref="style">
+      <label></label>
+      <group ref="orientation">
+        <label></label>
+        <input ref="orientation">
+            <label>horizontal</label>
+        </input>
+      </group>
+      <group ref="even">
+        <label></label>
+        <input ref="layout_weight">
+            <label>1</label>
+        </input>
+      </group>
+    </group>
     <group ref="user">
       <label></label>
       <group ref="tab1" faims_scrollable="false">
@@ -135,15 +162,17 @@
         <trigger ref="attach">
             <label>Attach</label>
         </trigger>
-        <trigger ref="save">
+        <group ref="container" faims_style="orientation">
+          <trigger ref="save" faims_style="even">
             <label>Save</label>
-        </trigger>
-        <trigger ref="update">
+          </trigger>
+          <trigger ref="update" faims_style="even">
             <label>Update</label>
-        </trigger>
-        <trigger ref="clear">
+          </trigger>
+          <trigger ref="clear" faims_style="even">
             <label>Clear</label>
-        </trigger>
+          </trigger>
+        </group>
       </group>
       <group ref="tab2" faims_hidden="false">
         <label>Load Entity</label>
@@ -173,15 +202,17 @@
             	<value>dummy</value>
           	</item>
         </select>
-        <trigger ref="save">
+        <group ref="container" faims_style="orientation">
+          <trigger ref="save" faims_style="even">
             <label>Save</label>
-        </trigger>
-        <trigger ref="update">
+          </trigger>
+          <trigger ref="update" faims_style="even">
             <label>Update</label>
-        </trigger>
-        <trigger ref="clear">
+          </trigger>
+          <trigger ref="clear" faims_style="even">
             <label>Clear</label>
-        </trigger>
+          </trigger>
+        </group>
       </group>
       <group ref="tab2">
         <label>Load Relationship</label>
